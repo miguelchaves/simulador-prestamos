@@ -1,0 +1,83 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      if: always()
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: NPM Install
+      run: npm ci
+      
+    - name: Run Tests
+      run: npm test
+      
+    - name: Set tests as output
+      id: test-results
+      run: |
+        content=`cat ${{ github.workspace }}/report.json`
+        # the following lines are only required for multi line json
+        content="${content//'%'/'%25'}"
+        content="${content//$'\n'/'%0A'}"
+        content="${content//$'\r'/'%0D'}"
+        # end of optional handling for multi line json
+        echo "::set-output name=testJson::$content";
+    
+    - name: Test Results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Test Results                         # Name of the check run which will be created
+        path: ${{ github.workspace }}/report.json  # Path to test results (inside artifact .zip)
+        reporter: 'mocha-json'                     # Format of test results
+
+    - name: Set badge color
+      shell: bash
+      run: |
+        if [${{ fromJSON( steps.test-results.outputs.testJson ).stats.failures }} -gt 0]
+          then
+            echo "BADGE_COLOR=800000" >> $GITHUB_ENV
+          else
+            echo "BADGE_COLOR=31c653" >> $GITHUB_ENV
+        fi
+    - name: Create badge
+      uses: emibcn/badge-action@d6f51ff11b5c3382b3b88689ae2d6db22d9737d1
+      with:
+        label: Tests
+        status: '${{ fromJSON( steps.test-results.outputs.testJson ).stats.tests }} tests: ${{ fromJSON( steps.test-results.outputs.testJson ).stats.passes }} passes, ${{ fromJSON( steps.test-results.outputs.testJson ).stats.failures }} failures'
+        color: ${{ env.BADGE_COLOR }}
+        path: badge.svg
+
+    - name: Upload badge to Gist
+      # Upload only for main branch
+      if: >
+        github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' ||
+        github.event_name != 'workflow_run' && github.ref == 'refs/heads/main'
+      uses: andymckay/append-gist-action@1fbfbbce708a39bd45846f0955ed5521f2099c6d
+      with:
+        token: ${{ secrets.GIST_TOKEN }}
+        gistURL: https://gist.githubusercontent.com/miguelchaves/95733b1329a62c3e44056a1d006c2410
+        file: badge.svg
+  
