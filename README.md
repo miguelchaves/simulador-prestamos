@@ -1,4 +1,4 @@
-# Calculadora de sueldo
+# Simulador de préstamos
 
 [![CI/CD](https://github.com/miguelchaves/simulador-prestamos/actions/workflows/node.js.yml/badge.svg)](https://github.com/miguelchaves/simulador-prestamos/actions/workflows/node.js.yml)
 [![Test Results](https://raw.githubusercontent.com/gist/miguelchaves/95733b1329a62c3e44056a1d006c2410/raw/badge.svg)](https://github.com/miguelchaves/simulador-prestamos/actions/workflows/node.js.yml)
