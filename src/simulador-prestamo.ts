@@ -44,7 +44,7 @@ export class SimuladorPrestamo {
     const plazos = plazo * (periodicidad === Periodicidad.meses ? 1 : 12);
     const cuota = - this.pmt(interesMensual, plazos, cantidad);
     const importeApertura = cantidad * comisionApertura || 0;
-    const totalFinanciacion = cuota * plazos + importeApertura;
+    const totalFinanciacion = cuota * plazos + importeApertura + otrosGastos;
     const importeIntereses = totalFinanciacion - cantidad;
     const tae = this.calcularTae(cantidad, tipoInteres, periodicidad, plazo, comisionApertura, otrosGastos);
     const tablaAmortizacion = this.tablaAmortizacion(cantidad, interesMensual, plazos, cuota);
@@ -66,11 +66,13 @@ export class SimuladorPrestamo {
     const plazos = plazo * (periodicidad === Periodicidad.meses ? 1 : 12);
     const cuota = this.pmt(interesMensual, plazos, cantidad);
     const importeApertura = Math.round(cantidad * comisionDeApertura || 0) / 100;
-    const rate = this.rate(
-      plazos,
-      cuota,
-      cantidad - importeApertura - otrosGastos
-    ) * 12;
+    const cantidadRate = cantidad - importeApertura - otrosGastos;
+
+    if (cantidadRate < 0) {
+      throw new ValidationError(['Los gastos de origen deben ser inferiores al capital inicial']);
+    }
+
+    const rate = this.rate(plazos, cuota, cantidadRate, 0, 0, tipoInteres) * 12;
     const pow = (12 + rate) / 12;
     const tae = Math.pow(pow, 12) - 1;
     return tae;
@@ -110,7 +112,7 @@ export class SimuladorPrestamo {
     const epsMax = 1e-10;
 
     // Set maximum number of iterations
-    const iterMax = 10;
+    const iterMax = 50;
 
     // Implement Newton's method
     let y;
