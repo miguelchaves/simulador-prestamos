@@ -15,6 +15,10 @@ Instalación
 $ npm install simulador-prestamo
 ```
 
+Para probar la librería puedes hacer uso de la siguiente aplicación:
+* Simulador de préstamos personales: https://herramientas-financieras.firebaseapp.com/simulador-prestamo/personal
+* Simulador de hipotecas: https://herramientas-financieras.firebaseapp.com/simulador-prestamo/hipoteca
+
 Documentación
 -------------
 
