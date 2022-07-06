@@ -9,8 +9,8 @@
 Librería Javascript & Typescript para realizar simulaciones de préstamos personales o hipotecarios, calcular la cuota, la TAE y la tabla de amortización.
 
 Para probar la librería puedes hacer uso de la siguiente aplicación:
-* Simulador de préstamos personales: https://herramientas-financieras.firebaseapp.com/simulador-prestamo/personal
-* Simulador de hipotecas: https://herramientas-financieras.firebaseapp.com/simulador-prestamo/hipoteca
+* Simulador de préstamos personales: https://herramientas-financieras.web.app/simulador-prestamo/personal
+* Simulador de hipotecas: https://herramientas-financieras.web.app/simulador-prestamo/hipoteca
 
 Instalación
 -----------
